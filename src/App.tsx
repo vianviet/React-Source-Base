@@ -1,26 +1,56 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import "./App.css";
+import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
+import PrivateRoute from "./router/PrivateRoute";
+import Dashboard from "./pages/Dashboard";
+import About from "./pages/About";
+import Login from "./pages/Login";
+import Home from "./pages/Home";
 
-function App() {
+const Root = () => (
+  <div>
+    <h1>My App</h1>
+    <Outlet />
+  </div>
+);
+
+const App = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: (
+        <PrivateRoute isAuthenticated={isAuthenticated}>
+          <Root />
+        </PrivateRoute>
+      ),
+      children: [
+        {
+          path: "dashboard",
+          element: <Dashboard />,
+        },
+        {
+          path: "about",
+          element: <About />,
+        },
+        {
+          path: "/",
+          element: <Home />,
+        },
+      ],
+    },
+    {
+      path: "/login",
+      element: (<PrivateRoute isAuthenticated={!isAuthenticated} fallback="/">
+        <Login />
+      </PrivateRoute>),
+    },
+  ]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <RouterProvider router={router} fallbackElement={<div>Loading...</div>} />
   );
-}
+};
 
 export default App;
